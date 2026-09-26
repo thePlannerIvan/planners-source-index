@@ -38,8 +38,13 @@
 ① $PLANNERS_MODULES_HOME/<module-name>/
 ② 调用方 Skill 自己目录的兄弟：<skills-root>/<module-name>/     ← 发布后的主路径，runtime 无关
 ③ monorepo 开发布局：02-skills-library/00-system/<module-name>/
-④ 都没有 → 报错并给出安装提示（不要静默降级成"跳过校验"）
+④ 用户级安装根：$PLANNERS_MODULES_INSTALL_DIR → $PLANNERS_MODULES_HOME → ~/.planners-modules/<module-name>/
+   （**库外**；永不写进 02-skills-library 工作树，也不写 ~/.codex|~/.claude|~/.gemini 的技能目录）
+⑤ ①–④ 都没有 → **自动从 GitHub 装上**，装完复验（SKILL.md + 本模组声明的契约/校验器锚点）再重解析；
+   装不成才报错，且错误信息必须给出可复制的手动装法（不要静默降级成"跳过校验"）
 ```
+
+**自动安装**（2026-09-26 加）：`git clone --depth 1` 到暂存目录 → 验 → `rename` 原子就位；装的是**默认分支 HEAD**（日志里写 commit，不钉 tag）。`PLANNERS_NO_AUTO_INSTALL=1` 时只报不装。**不静默**：缺哪个、找过哪些路径、从哪装、装到哪、哪个 commit，全部打印；失败一律清掉暂存并给可复制的手动命令。禁地断言只允许落在库外的用户级安装根。实现是各消费方自带的小安装器（`planners-modules-install.mjs` / `planners_modules_install.py`，同一套契约的两份语言镜像，**永不写进模组目录**）；消费方 README 里有完整说明。
 
 **适配器**：每个消费方留一份约 25 行的 `scripts/lib/planners-modules.mjs`，只做「按名字找到兄弟目录」这一件事，导出 `resolveModule(name)` 与 `moduleCli(name, script)`。**这是允许重复的 seam 适配器**（每家的语言/运行时可能不同），实质逻辑一律不复制。
 
