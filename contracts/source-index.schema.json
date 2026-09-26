@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source-index/2.0.0",
+  "title": "Common Source Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "source_root",
+    "sources"
+  ],
+  "properties": {
+    "contract_version": {
+      "const": "source-index/2.0.0"
+    },
+    "source_root": {
+      "type": "string",
+      "minLength": 1,
+      "description": "sources[].origin.path 的相对根；相对本文件所在目录解析"
+    },
+    "index_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "本文件除去本字段后的内容哈希；供下游『派生关系』锚定一份确定的来源登记版本"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "origin",
+          "kind",
+          "audit_layer",
+          "coverage"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}$",
+            "description": "全局唯一。允许沿用 quali 的 dataset:locator 形式，不强制 src- 前缀"
+          },
+          "origin": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "description": "相对 source_root"
+              },
+              "sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$",
+                "description": "原文件内容哈希。**coverage.status=unread 时可以为 null** —— 发现即登记，未读的来源不必为它付哈希代价（几 GB 的视频会在这一步白读一遍）；一旦不是 unread 就必须给。"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "kind": {
+            "enum": [
+              "document",
+              "workbook",
+              "corpus",
+              "image",
+              "media",
+              "other"
+            ],
+            "description": "只决定默认读取器，不决定字段集"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "description": "这份材料在项目里干什么用。**coverage.status=unread 时可以为空**（还没读，用途未知）；不是 unread 时必填。"
+          },
+          "evidence_role": {
+            "type": "string",
+            "description": "可选。这条来源/记录能证明什么（quali evidence_role 的悬挂位，语义归属留给事实核查）"
+          },
+          "audit_layer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mode"
+            ],
+            "properties": {
+              "mode": {
+                "enum": [
+                  "source_file",
+                  "audit_companion",
+                  "normalized_table",
+                  "normalized_corpus"
+                ]
+              },
+              "path": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "mode != source_file 时必填；相对本文件目录"
+              },
+              "sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "derived_from_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$",
+                "description": "派生层绑定的上游版本。bypage 绑 origin.sha256；quanti 绑 CP0 快照 hash"
+              },
+              "snapshot_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-f0-9]{64}$",
+                "description": "上游『已确认快照』的 hash，与 derived_from_sha256 分开记，允许多跳"
+              },
+              "method": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "提取/转换方式，如 pdftotext-layout、pandoc-plain、csv-normalize"
+              },
+              "anchor_marks": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "派生文本里的锚标记，如 '=== PAGE n ==='；事实核查据此把 anchors 映回文本"
+              }
+            }
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "full",
+                  "partial",
+                  "sampled",
+                  "excluded",
+                  "unread"
+                ],
+                "description": "full / partial / sampled / excluded / unread。规则：① partial 与 sampled 必须在 blind_spots[] 里各有一条（这才是「可能被当成全量」的危险）；② unread 必须写 reason 与 impact_if_incomplete（未读的来源不进任何结论，风险由这两项表达）；③ excluded 只要求 reason。"
+              },
+              "scope": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "实际读到的范围（自由文本，人读）"
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "没读全或排除的原因"
+              },
+              "impact_if_incomplete": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "counts": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "账目：如 {logical_records:412, empty_text:3, rows:1200, missing_cells:88}"
+              }
+            }
+          },
+          "analysis_unit": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "一行/一条代表谁。quanti observation_unit；quali 在 stage 里判断的『分析单位』"
+          },
+          "anchors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "value"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "note": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "与其他材料互相矛盾的客观事实；论证级反证不放这里"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blind_spots": {
+      "type": "array",
+      "description": "没读到的部分独立成册；每条必须能追溯到某个 source_id 或明确的『未纳入登记』",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scope",
+          "reason",
+          "impact"
+        ],
+        "properties": {
+          "source_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "scope": {
+            "type": "string",
+            "minLength": 1,
+            "description": "缺的是哪一段/哪些文件/哪些记录"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "impact": {
+            "type": "string",
+            "minLength": 1,
+            "description": "会让哪些判断不成立"
+          }
+        }
+      }
+    }
+  }
+}
