@@ -72,7 +72,7 @@ node "<本模组>/scripts/validate-source-index.mjs" <source-index.json>
 | 生产者 | `planners-bypage`、`planners-quanti-box`、`planners-quali-box`、`planners-proposal-system`、`video-idea-system` |
 | 消费者 | 上面五家 + `planners-fact-check`（事实核查按 `anchors[]` 回源） |
 
-调用姿势：消费方 Skill 按名字找到本模组的兄弟目录再执行它的 CLI。**解析约定与那 25 行适配器**见 `references/architecture.md`。
+调用姿势：消费方 Skill 按名字找到本模组的兄弟目录再执行它的 CLI。**解析约定与消费方自带的薄适配器**见 `references/architecture.md`。
 
 ## 不做什么
 
@@ -88,5 +88,5 @@ node "<本模组>/scripts/validate-source-index.mjs" <source-index.json>
 | `contracts/source-index.schema.json` | 契约权威（`source-index/2.0.0`） |
 | `scripts/validate-source-index.mjs` | 唯一校验器（换版本只改一处） |
 | `references/architecture.md` | module 表、缝、解析约定与适配器 |
-| `evals/` | 四类坏样例：未覆盖、盲区缺失、派生层未绑定、哈希不符 |
+| `evals/` | 坏样例回归：覆盖、盲区、派生绑定、哈希、唯一性、版本锚；**条数以 `evals/run.mjs` 的收尾输出为准** |
 | `GOTCHAS.md` | 候选经验（现象／原因／行为修正／证据／状态） |

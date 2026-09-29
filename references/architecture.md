@@ -20,7 +20,7 @@
 |---|---|---|---|---|
 | `contracts/source-index.schema.json` | 契约**权威** | 字段、枚举、必填、模式 —— 所有关于"索引长什么样"的规定只在这里一份 | 被校验器读取；被生产者引用 | 不是文档（不给判断方法、不解释为什么） |
 | `scripts/validate-source-index.mjs` | **唯一校验器** | 结构校验（对着 schema 跑）+ 机械校验（哈希复算、派生层绑定、覆盖闸门、盲区交叉、`index_sha256` 复算）；`--stamp` 写版本锚 | CLI：`node validate-source-index.mjs <file> [--text] [--strict-files] [--stamp]`，退出码非零即不合规 | 不读资料、不判断来源可信、不判断该不该用某个来源；**不判断正文对不对** |
-| `evals/run.mjs` | 判据的可执行形态 | 七条坏样例的回归（含三类必须 FAIL 的闸门） | `node evals/run.mjs` | 不是规格来源（规格在 schema 与 SKILL.md）；不代替人工判断 |
+| `evals/run.mjs` | 判据的可执行形态 | 坏样例回归：覆盖、盲区、派生绑定、哈希、唯一性、版本锚，以及必须 FAIL 的闸门。**条数由 runner 自己数并打印，本文件不复述数字** | `node evals/run.mjs` | 不是规格来源（规格在 schema 与 SKILL.md）；不代替人工判断 |
 | `GOTCHAS.md` | 候选经验 | 现象／原因／行为修正／证据／状态 + 它属于哪个 module | 人读；升级进 `maintenance-history.md`（尚未建立，出现第一次升级时创建） | 不存一次性过程日志 |
 
 **为什么校验器要读 schema 而不是手写字段检查**：字段表只有一份，改契约时不会出现"schema 改了、校验器没改"的第二真相源。
@@ -46,7 +46,7 @@
 
 **自动安装**（2026-09-26 加）：`git clone --depth 1` 到暂存目录 → 验 → `rename` 原子就位；装的是**默认分支 HEAD**（日志里写 commit，不钉 tag）。`PLANNERS_NO_AUTO_INSTALL=1` 时只报不装。**不静默**：缺哪个、找过哪些路径、从哪装、装到哪、哪个 commit，全部打印；失败一律清掉暂存并给可复制的手动命令。禁地断言只允许落在库外的用户级安装根。实现是各消费方自带的小安装器（`planners-modules-install.mjs` / `planners_modules_install.py`，同一套契约的两份语言镜像，**永不写进模组目录**）；消费方 README 里有完整说明。
 
-**适配器**：每个消费方留一份约 25 行的 `scripts/lib/planners-modules.mjs`，只做「按名字找到兄弟目录」这一件事，导出 `resolveModule(name)` 与 `moduleCli(name, script)`。**这是允许重复的 seam 适配器**（每家的语言/运行时可能不同），实质逻辑一律不复制。
+**适配器**：每个消费方留一份薄适配器 `scripts/lib/planners-modules.mjs`，只做「按名字找到兄弟目录」这一件事，导出 `resolveModule(name)` 与 `moduleScript(name, relPath)`。**这是允许重复的 seam 适配器**（每家的语言/运行时可能不同），实质逻辑一律不复制。**不写行数**：这份文件会随解析约定变化，写死的行数已经漂过一次。
 
 **为什么不做成"发布时打包"**：作者 2026-09-26 裁定按独立条目发布 —— `publish_skills.py` 因此不用改，它已经用 `file_digest` / `same_file` / `.skills-library-manifest.json` 保证发布副本与源一致。
 
@@ -65,7 +65,7 @@
 | 字段 / 枚举 / 必填 | `contracts/source-index.schema.json` 一处 | 校验器自动跟着变；**五个生产者都要改**；已发布项目里的旧索引会立刻不合规（`contract_version` 是 `const`，旧版本文件会被 `const` 拒掉 —— 这正是"不让半新半旧混跑"的机制） |
 | 覆盖闸门 | `scripts/validate-source-index.mjs` 的 `checkCoverage` / `checkBlindSpots` | 五个生产者可能立刻变红；判断"哪些状态算真空区"要同步 SKILL.md 的表 |
 | `index_sha256` 的规范化定义 | `canonical()` | 已盖过章的所有索引都会复算不符。**改动等于重新盖章**（`--stamp`） |
-| 解析约定 | 本文件 + 各消费方的 25 行适配器 | 顺序一变，runtime 与本地可能各找到不同的一份 —— 改完必须在三个 runtime 各验证一次 |
+| 解析约定 | 本文件 + 各消费方的薄适配器 | 顺序一变，runtime 与本地可能各找到不同的一份 —— 改完必须在三个 runtime 各验证一次 |
 
 ## 退役
 

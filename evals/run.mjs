@@ -20,8 +20,10 @@ const sha = buf => createHash('sha256').update(buf).digest('hex');
 let failed = 0;
 let badSamples = 0;
 let structural = 0;
-const ok = m => console.log(`  ✓ ${m}`);
-const bad = m => { failed++; console.log(`  ✗ ${m}`); };
+// 断言条数自己数，不靠文档复述（文档复述过的数字已经漂过三次）。
+let assertions = 0;
+const ok = m => { assertions++; console.log(`  ✓ ${m}`); };
+const bad = m => { failed++; assertions++; console.log(`  ✗ ${m}`); };
 
 function run(dir, args = []) {
   const r = spawnSync(process.execPath, [VALIDATOR, join(dir, 'source-index.json'), ...args], { encoding: 'utf8' });
@@ -132,5 +134,5 @@ console.log('\n[结构闸门]');
 }
 
 for (const d of tmpDirs) rmSync(d, { recursive: true, force: true });
-console.log(failed ? `\n${failed} 条失败` : `\n全部通过（1 好样例 + ${badSamples} 条坏样例 + ${structural} 条结构闸门）`);
+console.log(failed ? `\n${assertions} 条断言，${failed} 条失败` : `\n全部通过（${assertions} 条断言 = 1 好样例 + ${badSamples} 条坏样例 + ${structural} 条结构闸门）`);
 process.exit(failed ? 1 : 0);
