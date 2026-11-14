@@ -12,7 +12,7 @@ description: |
 
 ## 它解决什么
 
-一份成品能不能回源，取决于一件事：**这份结论的权威来源是哪个文件、原文在哪、有没有没读到的部分**。过去四家各写一套（bypage 的 `source-index`、quanti 的 `dataset-manifest`、quali 的 `coverage-manifest`、proposal 的散文契约），于是：
+一份成品能不能回源，取决于一件事：**这份结论的权威来源是哪个文件、原文在哪、有没有没读到的部分**。生产者都要交这份索引；唯一例外是 `planners-quanti-box` 的 Quick 档（只做描述与单表比较、不出结论级判断时允许不落），它一旦升级到 Standard/Deep 就必须补交 —— 下游不要用「有没有 source-index」判断谁读全了，要看 `coverage.status`。过去四家各写一套（bypage 的 `source-index`、quanti 的 `dataset-manifest`、quali 的 `coverage-manifest`、proposal 的散文契约），于是：
 - 事实核查要回源，得写四套适配器；
 - 「没读到的部分」四家三种做法，其中**两家的这一位是空的** —— 而它正是"成品跑偏"的主要来源。
 
