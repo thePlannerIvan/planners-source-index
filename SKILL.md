@@ -39,7 +39,11 @@ description: |
 
 **盲区独立成册**：`blind_spots[]` 与 `coverage` 双位置。`coverage.status` 是机器判的闸门，`blind_spots[]` 是人读的账（缺哪一段、为什么、会让哪些判断不成立）。
 
-契约的权威是 `contracts/source-index.schema.json`（`source-index/2.0.0`）。本文件不复述字段。
+**哈希证明不了可信。** `origin.sha256` 只说明「本地这份文件没被改过」，与「这句话是不是源材料说的」无关。内容几手由 `provenance` 单独登记：`primary`（一手原始材料：官方文件、原始数据、本人记录）/ `secondary`（基于一手写的分析或转述：研究报告、测评）/ `press`（新闻稿、媒体转述）/ `summary`（别人已经提炼过一轮的摘要）。契约 `2.1.0` 起，非 `unread` 的来源必须给 `provenance`；缺了校验器直接报错，旧契约 `2.0.0` 只警告（可读，但结论分不出一手与二手）。
+
+**结论的引用上限**：claim 只能引用 `primary` 与 `secondary`，且必须带 `anchors[]` 指向原文位置；引 `press` 须标明是媒体转述；引 `summary` 一律降级为线索，不得作为结论的证据——**先把层级判在入库那一刻，别指望事后回捞**。
+
+契约的权威是 `contracts/source-index.schema.json`（`source-index/2.1.0`，兼容 `2.0.0`）。本文件不复述字段。
 
 ## 怎么用
 
@@ -85,8 +89,8 @@ node "<本模组>/scripts/validate-source-index.mjs" <source-index.json>
 
 | 路径 | 用途 |
 |---|---|
-| `contracts/source-index.schema.json` | 契约权威（`source-index/2.0.0`） |
+| `contracts/source-index.schema.json` | 契约权威（`source-index/2.1.0`；`2.0.0` 仍可读，但缺 `provenance` 只警告） |
 | `scripts/validate-source-index.mjs` | 唯一校验器（换版本只改一处） |
 | `references/architecture.md` | module 表、缝、解析约定与适配器 |
-| `evals/` | 坏样例回归：覆盖、盲区、派生绑定、哈希、唯一性、版本锚；**条数以 `evals/run.mjs` 的收尾输出为准** |
+| `evals/` | 坏样例回归：覆盖、盲区、派生绑定、哈希、唯一性、版本锚、`provenance` 必填；**条数以 `evals/run.mjs` 的收尾输出为准** |
 | `GOTCHAS.md` | 候选经验（现象／原因／行为修正／证据／状态） |

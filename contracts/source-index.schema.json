@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "source-index/2.0.0",
+  "$id": "source-index/2.1.0",
   "title": "Common Source Index",
   "type": "object",
   "additionalProperties": false,
@@ -11,7 +11,11 @@
   ],
   "properties": {
     "contract_version": {
-      "const": "source-index/2.0.0"
+      "enum": [
+        "source-index/2.0.0",
+        "source-index/2.1.0"
+      ],
+      "description": "2.0.0 为旧版（可读，校验器给 legacy 警告）；2.1.0 要求每个来源登记 provenance。新索引一律写 2.1.0。"
     },
     "source_root": {
       "type": "string",
@@ -86,6 +90,15 @@
             "type": "string",
             "minLength": 1,
             "description": "这份材料在项目里干什么用。**coverage.status=unread 时可以为空**（还没读，用途未知）；不是 unread 时必填。"
+          },
+          "provenance": {
+            "enum": [
+              "primary",
+              "secondary",
+              "press",
+              "summary"
+            ],
+            "description": "这份内容是谁说的、几手：primary=一手原始材料（官方文件/原始数据/本人记录），secondary=基于一手写的分析或转述（研究报告、测评），press=新闻稿或媒体转述，summary=二次整理摘要（别人已经提炼过一轮的要点）。**哈希（origin.sha256）只证明本地文件没被改，不证明内容可信**；能不能被结论引用看这个字段。契约 2.1.0 起为必填（unread 除外）。"
           },
           "evidence_role": {
             "type": "string",

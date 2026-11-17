@@ -78,6 +78,35 @@ console.log('\n[好样例]');
   const res2 = run(d);                        // 再校验（带 index_sha256）
   if (res2.code === 0 && res2.out?.valid === true) ok('干净索引通过，且盖章后复算一致');
   else bad(`干净索引未通过：${JSON.stringify(codes(res2))} ${res2.stderr || ''}`);
+  const warnCodes = (res2.out?.warnings || []).map(w => w.code);
+  if (warnCodes.includes('provenance_unregistered')) ok('2.0.0 缺 provenance 只警告不拦（旧索引可读）');
+  else bad(`2.0.0 未给出 provenance 的 legacy 警告：${JSON.stringify(warnCodes)}`);
+}
+
+console.log('\n[2.1.0 —— provenance 必填]');
+{
+  const d = fx('prov-missing', i => { i.contract_version = 'source-index/2.1.0'; });
+  const res = run(d);
+  if (res.code !== 0 && codes(res).includes('provenance_required')) ok('2.1.0 缺 provenance 被拦下');
+  else bad(`2.1.0 缺 provenance 未被拦下：${JSON.stringify(codes(res))}`);
+}
+{
+  const d = fx('prov-ok', i => {
+    i.contract_version = 'source-index/2.1.0';
+    i.sources[0].provenance = 'secondary';
+  });
+  const res = run(d);
+  if (res.code === 0 && res.out?.valid === true) ok('2.1.0 带 provenance 通过');
+  else bad(`2.1.0 带 provenance 未通过：${JSON.stringify(codes(res))}`);
+}
+{
+  const d = fx('prov-bad', i => {
+    i.contract_version = 'source-index/2.1.0';
+    i.sources[0].provenance = 'official';
+  });
+  const res = run(d);
+  if (res.code !== 0 && codes(res).includes('enum')) ok('provenance 只认四个取值');
+  else bad(`非法 provenance 未被拦下：${JSON.stringify(codes(res))}`);
 }
 
 console.log('\n[坏样例 —— 每条闸门必须拦得住]');
@@ -129,7 +158,7 @@ console.log('\n[结构闸门]');
   const d = fx('badver', i => { i.contract_version = 'source-index/1.1.0'; });
   structural += 1;
   const res = run(d);
-  if (res.code !== 0 && codes(res).includes('const')) ok('旧版本号被 const 拦下（不让半新半旧混跑）');
+  if (res.code !== 0 && codes(res).includes('enum')) ok('旧版本号被 enum 拦下（不让半新半旧混跑）');
   else bad(`旧版本号未被拦下：${JSON.stringify(codes(res))}`);
 }
 

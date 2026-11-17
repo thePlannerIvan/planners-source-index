@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 来源索引的唯一校验器（source-index/2.0.0）。
+ * 来源索引的唯一校验器（source-index/2.0.0 | 2.1.0）。
  *
  * 用法：
  *   node validate-source-index.mjs <source-index.json> [--text] [--strict-files] [--stamp]
@@ -139,6 +139,21 @@ function checkCoverage(source, where) {
   }
 }
 
+function checkProvenance(doc) {
+  const version = doc.contract_version;
+  if (version !== 'source-index/2.1.0') {
+    warn('provenance_unregistered', '契约是 2.0.0：未登记 provenance（primary/secondary/press/summary）。旧索引可读，但结论无法区分一手与二手；新索引请写 2.1.0 并逐条补上');
+    return;
+  }
+  doc.sources.forEach((s, i) => {
+    const where = `sources[${i}](${s.source_id})`;
+    if (s.coverage?.status === 'unread') return;   // 没读的来源不参与结论，不必表态
+    if (isBlank(s.provenance)) {
+      err('provenance_required', `${where} 契约 2.1.0 要求登记 provenance（primary/secondary/press/summary）—— 哈希只能证明文件没被改，证明不了内容可信`);
+    }
+  });
+}
+
 function checkBlindSpots(doc, seen) {
   const bySource = new Map();
   (doc.blind_spots || []).forEach((b, i) => {
@@ -201,6 +216,7 @@ function main() {
     checkAuditLayer(indexDir, s, where);
     checkCoverage(s, where);
   });
+  checkProvenance(doc);
   checkBlindSpots(doc, seen);
 
   if (doc.index_sha256) {

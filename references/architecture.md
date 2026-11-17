@@ -19,7 +19,7 @@
 | module | 它是什么 | 拥有什么（唯一主人） | 接口 | 不做什么 |
 |---|---|---|---|---|
 | `contracts/source-index.schema.json` | 契约**权威** | 字段、枚举、必填、模式 —— 所有关于"索引长什么样"的规定只在这里一份 | 被校验器读取；被生产者引用 | 不是文档（不给判断方法、不解释为什么） |
-| `scripts/validate-source-index.mjs` | **唯一校验器** | 结构校验（对着 schema 跑）+ 机械校验（哈希复算、派生层绑定、覆盖闸门、盲区交叉、`index_sha256` 复算）；`--stamp` 写版本锚 | CLI：`node validate-source-index.mjs <file> [--text] [--strict-files] [--stamp]`，退出码非零即不合规 | 不读资料、不判断来源可信、不判断该不该用某个来源；**不判断正文对不对** |
+| `scripts/validate-source-index.mjs` | **唯一校验器** | 结构校验（对着 schema 跑）+ 机械校验（哈希复算、派生层绑定、覆盖闸门、盲区交叉、`provenance` 必填、`index_sha256` 复算）；`--stamp` 写版本锚 | CLI：`node validate-source-index.mjs <file> [--text] [--strict-files] [--stamp]`，退出码非零即不合规 | 不读资料、不判断来源可信、不判断该不该用某个来源；**不判断正文对不对** |
 | `evals/run.mjs` | 判据的可执行形态 | 坏样例回归：覆盖、盲区、派生绑定、哈希、唯一性、版本锚，以及必须 FAIL 的闸门。**条数由 runner 自己数并打印，本文件不复述数字** | `node evals/run.mjs` | 不是规格来源（规格在 schema 与 SKILL.md）；不代替人工判断 |
 | `GOTCHAS.md` | 候选经验 | 现象／原因／行为修正／证据／状态 + 它属于哪个 module | 人读；升级进 `maintenance-history.md`（尚未建立，出现第一次升级时创建） | 不存一次性过程日志 |
 
@@ -52,6 +52,7 @@
 
 ## 同一件事的两个真相源（故意分开，写清谁读谁）
 
+0. **`origin.sha256` 与 `provenance`**：前者说「本地这份文件没被改」（完整性），后者说「这句话是谁说的、几手」（可引用性）。哈希永远证明不了内容可信 —— 混成一个字段的结果是把二手摘要标成"已核实"，下游也就不再抽查。`provenance` 在入库时判，`2.1.0` 起非 `unread` 必填。
 1. **`coverage` 与 `blind_spots`**：机器读 `coverage.status`（闸门），人读 `blind_spots[]`（缺哪一段、为什么、会让哪些判断不成立）。合并成一个会让「机器要判的」和「人要读的」互相将就。
 2. **`derived_from_sha256` 与 `snapshot_sha256`**：前者绑**原文件字节**（bypage 的审计副本就是这份文件的文本渲染，必须一致），后者绑**上游已确认快照**（quanti 的分析只许在已批准的规范表上跑）。两个都留、至少一个非空 —— 二选一会砍掉一家最强处。
 3. **契约 vs 文档**：`schema` 是字段权威；`SKILL.md` 与这份 `architecture.md` 解释为什么、以及怎么用。改字段只改 schema 一处。
