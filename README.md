@@ -1,7 +1,7 @@
 # Planners Source Index
 
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-2563eb)](LICENSE)
-[![Contract](https://img.shields.io/badge/contract-source--index%2F2.0.0-0f766e)](contracts/source-index.schema.json)
+[![Contract](https://img.shields.io/badge/contract-source--index%2F2.1.0-0f766e)](contracts/source-index.schema.json)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-339933)](https://nodejs.org)
 
 **全系列 Skill 的“防幻觉与来源记账本”：说清每条结论出自哪份原始文件、定位到哪一行，并老实交代哪些部分根本没读到。**
@@ -35,12 +35,12 @@
 只有两种情况你会亲自和它打交道：
 
 1. **你想单独校验一份已有的 `source-index.json`**：检查某个研究或提案项目交出来的来源索引有没有遗漏必填绑定、或者有没有漏报未读盲区；
-2. **你是 Skill 开发者 / 企业工作流定制者**：希望让自己的 Skill 也共享同一份 `source-index/2.0.0` 契约，并与 [`planners-fact-check`](https://github.com/thePlannerIvan/planners-fact-check) 无缝对接回源核查。
+2. **你是 Skill 开发者 / 企业工作流定制者**：希望让自己的 Skill 也共享同一份 `source-index/2.1.0` 契约，并与 [`planners-fact-check`](https://github.com/thePlannerIvan/planners-fact-check) 无缝对接回源核查。
 
 ### 谁在使用它？
 
-- **直接消费并校验**：`planners-quali-box`、`planners-quanti-box`、`planners-proposal-system`、`planners-bypage`、`planners-method-wiki`、`planners-fact-check`
-- **遵循同契约格式输出**：`video-idea-system`（`inventory-sources.mjs` 按 `source-index/2.0.0` 格式清点项目资料）
+- **直接消费并校验**：`planners-quali-box`、`planners-quanti-box`、`planners-proposal`、`planners-bypage`、`planners-method-wiki`、`planners-fact-check`
+- **遵循同契约格式输出**：`video-idea-system`（`inventory-sources.mjs` 按 `source-index/2.1.0` 格式清点项目资料）
 
 ---
 
@@ -83,7 +83,7 @@ node scripts/validate-source-index.mjs <source-index.json> --text
 
 | `audit_layer.mode` | 适用形态 | 上游绑定字段 | 典型生成方 |
 | --- | --- | --- | --- |
-| `source_file` | 直接读取原文本/原文件 | — | `planners-proposal-system`、`video-idea-system` |
+| `source_file` | 直接读取原文本/原文件 | — | `planners-proposal`、`video-idea-system` |
 | `audit_companion` | 二进制/PDF 抽取后的机器审计副本 | `derived_from_sha256` | `planners-bypage` |
 | `normalized_table` | 规范化表格数据包 | `snapshot_sha256` | `planners-quanti-box` |
 | `normalized_corpus` | 规范化编码语料 | `derived_from_sha256` | `planners-quali-box` |
@@ -109,7 +109,7 @@ planners-source-index/
 ├── SKILL.md
 ├── GOTCHAS.md
 ├── contracts/
-│   └── source-index.schema.json        # source-index/2.0.0 权威契约
+│   └── source-index.schema.json        # source-index/2.1.0 权威契约
 ├── scripts/
 │   └── validate-source-index.mjs       # 唯一校验器
 ├── evals/

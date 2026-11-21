@@ -1,7 +1,7 @@
 ---
 name: planners-source-index
 description: |
-  来源索引的公共契约与唯一校验器：登记一份结论的权威来源是什么、怎么定位到原文、哪些没读到。被 planners-quali-box、planners-quanti-box、planners-proposal-system、planners-bypage 与 video-idea-system 调用，**不由用户直接触发**。只有一种情况直接用它：你手上已经有一份来源索引文件，想单独校验它是否符合契约。
+  来源索引的公共契约与唯一校验器：登记一份结论的权威来源是什么、怎么定位到原文、哪些没读到。被 planners-quali-box、planners-quanti-box、planners-proposal、planners-bypage 与 video-idea-system 调用，**不由用户直接触发**。只有一种情况直接用它：你手上已经有一份来源索引文件，想单独校验它是否符合契约。
 ---
 
 # Planners Source Index
@@ -73,7 +73,7 @@ node "<本模组>/scripts/validate-source-index.mjs" <source-index.json>
 
 | 角色 | 谁 |
 |---|---|
-| 生产者 | `planners-bypage`、`planners-quanti-box`、`planners-quali-box`、`planners-proposal-system`、`video-idea-system` |
+| 生产者 | `planners-bypage`、`planners-quanti-box`、`planners-quali-box`、`planners-proposal`、`video-idea-system` |
 | 消费者 | 上面五家 + `planners-fact-check`（事实核查按 `anchors[]` 回源） |
 
 调用姿势：消费方 Skill 按名字找到本模组的兄弟目录再执行它的 CLI。**解析约定与消费方自带的薄适配器**见 `references/architecture.md`。

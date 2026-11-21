@@ -29,7 +29,7 @@
 
 | 角色 | 谁 | 写/读什么 |
 |---|---|---|
-| 生产者 | `planners-bypage`、`planners-quanti-box`、`planners-quali-box`、`planners-proposal-system`、`video-idea-system` | 写 `source-index.json`（各自那份旧格式迁移到 2.0.0） |
+| 生产者 | `planners-bypage`、`planners-quanti-box`、`planners-quali-box`、`planners-proposal`、`video-idea-system` | 写 `source-index.json`（统一使用 `2.1.0` 契约） |
 | 消费者 | 上面五家 + `planners-fact-check` | 读 `anchors[]` / `audit_layer` / `coverage` 回源 |
 
 **解析约定（跨 Skill 调用唯一的缝）**。本模组是**独立发布的条目**，与其它 Skill 平铺在同一个 skills 根下，所以按名字找兄弟目录即可：
@@ -46,7 +46,7 @@
 
 **自动安装**（2026-09-26 加）：`git clone --depth 1` 到暂存目录 → 验 → `rename` 原子就位；装的是**默认分支 HEAD**（日志里写 commit，不钉 tag）。`PLANNERS_NO_AUTO_INSTALL=1` 时只报不装。**不静默**：缺哪个、找过哪些路径、从哪装、装到哪、哪个 commit，全部打印；失败一律清掉暂存并给可复制的手动命令。禁地断言只允许落在库外的用户级安装根。实现是各消费方自带的小安装器（`planners-modules-install.mjs` / `planners_modules_install.py`，同一套契约的两份语言镜像，**永不写进模组目录**）；消费方 README 里有完整说明。
 
-**适配器**：每个消费方留一份薄适配器 `scripts/lib/planners-modules.mjs`，只做「按名字找到兄弟目录」这一件事，导出 `resolveModule(name)` 与 `moduleScript(name, relPath)`。**这是允许重复的 seam 适配器**（每家的语言/运行时可能不同），实质逻辑一律不复制。**不写行数**：这份文件会随解析约定变化，写死的行数已经漂过一次。
+**适配器**：每个消费方留一份薄适配器 `planners-modules.mjs`（置于各消费方自己的 `scripts/lib/` 下），只做「按名字找到兄弟目录」这一件事，导出 `resolveModule(name)` 与 `moduleScript(name, relPath)`。**这是允许重复的 seam 适配器**（每家的语言/运行时可能不同），实质逻辑一律不复制。**不写行数**：这份文件会随解析约定变化，写死的行数已经漂过一次。
 
 **为什么不做成"发布时打包"**：作者 2026-09-26 裁定按独立条目发布 —— `publish_skills.py` 因此不用改，它已经用 `file_digest` / `same_file` / `.skills-library-manifest.json` 保证发布副本与源一致。
 
